@@ -12,10 +12,10 @@ typedef struct{
 
 // Função para calcular a distância euclidiana entre dois pontos. √((xb - xa)² + (yb-ya)²)
 double calc_dist(City a, City b){
-    double dx = pow((b.x - a.x), 2);
-    double dy = pow((b.y - a.y), 2);
+    double dx = b.x - a.x;
+    double dy = b.y - a.y;
 
-    return sqrt((dx + dy));
+    return sqrt(dx * dx + dy * dy);
 }
 
 /*TODO: Implementação dos 3 algoritmos + matriz de distâncias*/
@@ -77,7 +77,26 @@ int main(int argc, char** argv){
 
     fclose(arch);
 
+    // Alocação da matriz de distâncias, deve ser ** por se tratar de uma matriz, ou seja, precisa duplamente de alocação.
+    double** dist = malloc(sizeof(double*) * dimension);
+    for(int i = 0; i < dimension; i++){
+        dist[i] = malloc(dimension * sizeof(double));
+    }
+
+    // Preenchendo amatriz de distâncias.
+    for(int i = 0; i < dimension; i++){
+        for(int j = 0; j < dimension; j++){
+            dist[i][j] = calc_dist(cities[i], cities[j]);
+        }
+    }
+
+    // Desalocando a alocação secudária da matriz de distâncias.
+    for(int i = 0; i < dimension; i++){
+        free(dist[i]);
+    }
+
     free(cities);
+    free(dist);
 
     return 0;
 }
