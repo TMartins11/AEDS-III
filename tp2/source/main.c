@@ -29,7 +29,7 @@ double calc_dist(City a, City b){
 *    - Algoritmo Guloso                                                                                                             
 *    - Programação Dinâmica                                                                                                         
 *                                                                                                                                  
-*  Os algoritmos são avaliados podem ser avaliados por 20 instâncias diferentes da biblioteca TSPLIB, bastando o usuário passar o
+*  Os algoritmos podem ser avaliados por 20 instâncias diferentes da biblioteca TSPLIB, bastando o usuário passar o
 *  nome do arquivo instância como argumento para a execução do projeto.
 *
 *  Obs: Não é necesário passar o caminho completo, apenas o nome da instância, o próprio código é capaz de buscar o caminho.
