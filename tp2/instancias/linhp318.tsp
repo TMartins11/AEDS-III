@@ -1,8 +1,11 @@
 NAME: lin318
 TYPE: TSP
-COMMENT: 318-city problem (Lin/Kernighan)
+COMMENT: Original 318-city problem (Lin/Kernighan)
 DIMENSION: 318
 EDGE_WEIGHT_TYPE: EUC_2D
+FIXED_EDGES_SECTION
+1 214
+-1
 NODE_COORD_SECTION
 1 63 71
 2 94 71
