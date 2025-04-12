@@ -3,7 +3,8 @@ PROJ_NAME=tp2
 CC=gcc
 
 CFLAGS= -Wall -Wextra -g -O3
- 
+LDFLAGS= -lm
+
 C_SOURCE=$(wildcard ./source/*.c)
 
 H_SOURCE=$(wildcard ./source/*.h)
@@ -13,7 +14,7 @@ OBJ=$(subst .c,.o,$(subst source,objects,$(C_SOURCE)))
 all: objFolder $(PROJ_NAME)
 
 $(PROJ_NAME): $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 ./objects/%.o: ./source/%.c
 	$(CC) $(CFLAGS) -c $< -o $@

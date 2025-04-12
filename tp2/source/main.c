@@ -1,33 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <stdbool.h>
 #include <string.h>
-
-// Struct para armazenar cada cidade.
-typedef struct{
-    int id;
-    double x;
-    double y;
-}City;
-
-// Função para calcular a distância euclidiana entre dois pontos. √((xb - xa)² + (yb-ya)²)
-double calc_dist(City a, City b){
-    double dx = b.x - a.x;
-    double dy = b.y - a.y;
-
-    return sqrt(dx * dx + dy * dy);
-}
-
-/*TODO: Implementação dos 3 algoritmos + matriz de distâncias*/
+#include <math.h>
+#include <time.h>
+#include "alg.h"
 
 /************************************************************************************************************************************
 *                                                  DESCRIÇÃO DO PROJETO                                                             
 *                                                                                                                                   
 *  Neste trabalho, foram implementados três diferentes algoritmos para a resolução do problema do Caixeiro Viajante, cada um        
-*  obedecendo a um paradigma de projeto de algoritmos, sendo eles:                                                                  
-*    - Backtracking                                                                                                                 
-*    - Algoritmo Guloso                                                                                                             
-*    - Programação Dinâmica                                                                                                         
+*  obedecendo a um paradigma de projeto de algoritmos, sendo eles:                                                                                                                                                                               
+*    - Divisão e Conquista                                                                                                             
+*    - Algoritmo Guloso
+*    -                                                                                                        
 *                                                                                                                                  
 *  Os algoritmos podem ser avaliados por 20 instâncias diferentes da biblioteca TSPLIB, bastando o usuário passar o
 *  nome do arquivo instância como argumento para a execução do projeto.
@@ -37,66 +23,56 @@ double calc_dist(City a, City b){
 *  Alunos: Thiago Martins | Pedro Augusto | Jeann Victor | Nicolas Rodrigues                                                        
 ************************************************************************************************************************************/
 
-
-int main(int argc, char** argv){
-    if(argc != 2){
-        printf("\nA Quantidade de argumentos passada é inválida!");
+int main(int argc, char** argv) {
+    if (argc != 2) {
+        printf("\nUso: %s <nome_instancia>\n", argv[0]);
         return 1;
     }
+
+    // Garante o caminho correto para o arquivo instância desejado.
+    char path[100] = "./instancias/";
+    strcat(path, argv[1]);
+    int n;
+    City *cities_original = ler_instancia(path, &n);
+    if (!cities_original) {
+        printf("Erro ao abrir o arquivo.\n");
+        return 1;
+    }
+
+    double **dist = gerar_matriz_dist(cities_original, n);
+
+    // Cria cópia ordenada para divisão e conquista
+    City *cities_ordenadas = malloc(n * sizeof(City));
+    memcpy(cities_ordenadas, cities_original, n * sizeof(City));
+    qsort(cities_ordenadas, n, sizeof(City), compare_x);
+
+    // Mede o tempo gasto para encontrar uma solução por Divisão e Conquista.
+    clock_t inicio = clock();
+    City *tour_dc = divisao_e_conquista(cities_ordenadas, n, dist);
+    double tempo_dc = (double)(clock() - inicio) / CLOCKS_PER_SEC;
+
+    int *tour_indices = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) tour_indices[i] = tour_dc[i].id - 1;
+    double custo_dc = custo_tour_matriz(tour_indices, n, dist);
+    free(tour_indices);
+
+    printf("\nAlgoritmo Divisao e Conquista:\nCusto: %.2f\nTempo: %.6f\nTour: ", custo_dc, tempo_dc);
+    for (int i = 0; i < n; i++) printf("%d ", tour_dc[i].id);
+    printf("%d\n", tour_dc[0].id);
+
     
-    char full_path[100] = "./instancias/";
-    strcat(full_path, argv[1]);
+    int *tour_g = malloc(n * sizeof(int));
+    // Mede o tempo gasto para encontrar uma solução por Algoritmo Guloso.
+    inicio = clock();
+    double custo_g = algoritmo_guloso(dist, n, 0, tour_g);
+    double tempo_g = (double)(clock() - inicio) / CLOCKS_PER_SEC;
 
-    FILE *arch = fopen(full_path, "r");
-    if(!arch){
-        printf("\nO arquivo instância não foi aberto corretamente!");
-        return 1;
-    }
+    printf("\nResultado do algoritmo Guloso:\nCusto: %.2f\nTempo execucao: %.6f\nTour: ", custo_g, tempo_g);
+    for (int i = 0; i < n; i++) printf("%d ", tour_g[i] + 1);
+    printf("%d\n", tour_g[0] + 1);
 
-    int dimension = 0;
-    char line[128];
-
-    while( fgets(line, sizeof(line), arch)){
-        if(strncmp(line, "DIMENSION", 9) == 0){
-            sscanf(line, "DIMENSION: %d", &dimension);
-        }
-        if(strncmp(line, "NODE_COORD_SECTION", 18) == 0){
-            break;
-        }
-    }
-
-    if(dimension == 0){
-        printf("\nErro: Dimensão não encontrada!");
-        return 1;
-    }
-
-    City *cities = malloc(sizeof(City) * dimension);
-    for(int i = 0; i < dimension; i++){
-        fscanf(arch, "%d %lf %lf", &cities[i].id, &cities[i].x, &cities[i].y);
-    }
-
-    fclose(arch);
-
-    // Alocação da matriz de distâncias, deve ser ** por se tratar de uma matriz, ou seja, precisa duplamente de alocação.
-    double** dist = malloc(sizeof(double*) * dimension);
-    for(int i = 0; i < dimension; i++){
-        dist[i] = malloc(dimension * sizeof(double));
-    }
-
-    // Preenchendo amatriz de distâncias.
-    for(int i = 0; i < dimension; i++){
-        for(int j = 0; j < dimension; j++){
-            dist[i][j] = calc_dist(cities[i], cities[j]);
-        }
-    }
-
-    // Desalocando a alocação secudária da matriz de distâncias.
-    for(int i = 0; i < dimension; i++){
-        free(dist[i]);
-    }
-
-    free(cities);
-    free(dist);
-
+    liberar_matriz(dist, n);
+    free(cities_original); free(cities_ordenadas);
+    free(tour_dc); free(tour_g);
     return 0;
 }
