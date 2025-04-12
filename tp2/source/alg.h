@@ -19,7 +19,7 @@ double** gerar_matriz_dist(City *cities, int n);
 void liberar_matriz(double **matriz, int n);
 
 
-/* ------------------------ Funções de Utilidade Geral ------------------------ */
+/* ------------------------ Funções Auxiliares ------------------------ */
 
 // Calcula distância euclidiana entre duas cidades
 double calc_dist(City a, City b);
