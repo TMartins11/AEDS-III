@@ -12,6 +12,9 @@ typedef struct {
 // Lê os dados da instância TSPLIB do arquivo
 City* ler_instancia(char *filename, int *n);
 
+
+/* ------------------------- Matriz de Distâncias --------------------------- */
+
 // Gera matriz de distâncias euclidianas entre todas as cidades
 double** gerar_matriz_dist(City *cities, int n);
 
@@ -36,14 +39,14 @@ double custo_tour_matriz(int *tour, int n, double **matriz);
 
 /* ---------------------------- Força Bruta ---------------------------- */
 
-// Gera todas as permutações para encontrar o menor tour (ineficiente para grandes n)
-void permutacao(City *cities, int inicio, int n, City *melhor_tour, double *custo_min, double **matriz);
+void permutar(int *vetor, int inicio, int fim, int **matriz, int n, int *melhor_custo, int *visitado, time_t start_time, int tempo_maximo, bool *interrompido);
 
-// Wrapper para força bruta
-City* forca_bruta_CV(City* cities, int n, double **matriz);
+double tsp_forca_bruta(int **matriz, int n, int tempo_maximo_segundos);
 
 
 /* ------------------------- Divisão e Conquista ------------------------- */
+
+City* forca_bruta_CV(City* cities, int n, double **matriz);
 
 // Junta dois subtours minimizando o custo total ao unir as bordas
 City* junta_tours(City *esq, int n_esq, City *dir, int n_dir, double **matriz);
